@@ -10,11 +10,17 @@ import (
 	"GoMusic/misc/models"
 )
 
-var db *gorm.DB
+var (
+	db  *gorm.DB
+	DSN string
+)
 
-func init() {
-	dsn := "root:12345678@tcp(127.0.0.1:3306)/go_music?charset=utf8mb4&parseTime=True&loc=Local"
-	open, err := gorm.Open(mysql.Open(dsn))
+func InitDB() {
+	if DSN == "" {
+		DSN = "root:12345678@tcp(127.0.0.1:3306)/go_music?charset=utf8mb4&parseTime=True&loc=Local"
+	}
+
+	open, err := gorm.Open(mysql.Open(DSN))
 	if err != nil {
 		log.Errorf("数据库连接失败：%v", err)
 		panic(err)

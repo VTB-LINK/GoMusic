@@ -14,14 +14,19 @@ import (
 var (
 	ctx = context.Background()
 	rdb *redis.Client
+
+	RdbOptions *redis.Options
 )
 
-func init() {
-	rdb = redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:16379",  // redis 服务端地址
-		Password: "SzW7fh2Fs5d2ypwT", // redis 密码
-		DB:       0,
-	})
+func InitRedis() {
+	if RdbOptions == nil {
+		RdbOptions = &redis.Options{
+			Addr:     "127.0.0.1:16379",  // redis 服务端地址
+			Password: "SzW7fh2Fs5d2ypwT", // redis 密码
+			DB:       0,
+		}
+	}
+	rdb = redis.NewClient(RdbOptions)
 }
 
 func SetKey(key string, value string) error {
