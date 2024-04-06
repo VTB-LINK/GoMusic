@@ -7,6 +7,6 @@ ENV TZ Asia/Shanghai
 
 COPY ./GoMusic /GoMusic
 
-EXPOSE 8080
+EXPOSE 8081
 
 CMD ["./GoMusic"]
