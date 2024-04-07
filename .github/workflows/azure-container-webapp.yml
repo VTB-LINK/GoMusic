@@ -29,7 +29,7 @@ name: Build and deploy a container to an Azure Web App
 env:
   AZURE_WEBAPP_NAME: playlist-migrate-vtb-tools  # set this to the name of your Azure Web App
   DOCKERFILE_PATH: "./Dockerfile"
-
+  FRONTEND_WORKPATH: "./static"
 on:
   push:
     branches: [ "azure-deploy" ]
@@ -40,10 +40,52 @@ permissions:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        name: Use Node.js ${{ matrix.node-version }}
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: false
+
+      - name: Get pnpm store directory
+        working-directory: ${{env.FRONTEND_WORKPATH}}
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+        working-directory: ${{env.FRONTEND_WORKPATH}}
+
+      - name: Install dependencies
+        working-directory: ${{env.FRONTEND_WORKPATH}}
+        run: pnpm install
+
+      - name: Use pnpm to build
+        working-directory: ${{env.FRONTEND_WORKPATH}}
+        run: pnpm run build
+
 
       - uses: actions/setup-go@main
         with:

@@ -7,6 +7,8 @@ ENV TZ Asia/Shanghai
 
 COPY ./GoMusic /GoMusic
 
+COPY ./static/dist /static
+
 EXPOSE 8081
 
 CMD ["./GoMusic"]
